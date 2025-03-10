@@ -47,7 +47,7 @@ All collected data is stored in a MySQL database using Entity Framework for easy
 * EFCore.BulkExtensions – High-performance data insertion
 
 ## 🚨 Challenges and Solutions
-✅ Handling Large Websites – The scraper is optimized to handle large-scale websites by using concurrency and bulk insertion into a MySQL DB.
-✅ Rate Limits – Throttling is used to avoid overloading the server.
-✅ Dynamic Content – JavaScript-heavy sites are processed using Selenium and WebDriver.
+* ✅ Handling Large Websites – The scraper is optimized to handle large-scale websites by using concurrency and bulk insertion into a MySQL DB.
+* ✅ Rate Limits – Throttling is used to avoid overloading the server.
+* ✅ Dynamic Content – JavaScript-heavy sites are processed using Selenium and WebDriver.
 
