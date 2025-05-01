@@ -79,7 +79,7 @@ public static class CommandLineParser
                     ProxyAddress = proxyAddress,
                     Headers = header
                 };
-                await Program.Start(crawlerSettings);
+                await CrawlCoordinator.StartAsync(crawlerSettings);
             }, urlArgument, eagerOption, scopeOption, headlessOption, requestDelayOption, proxyAddressOption,
             headersOption);
 
