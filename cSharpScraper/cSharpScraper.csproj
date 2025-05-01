@@ -26,7 +26,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Exemptions" />
+    <Compile Remove="Exemptions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Exemptions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Exemptions\**" />
   </ItemGroup>
 
 </Project>
