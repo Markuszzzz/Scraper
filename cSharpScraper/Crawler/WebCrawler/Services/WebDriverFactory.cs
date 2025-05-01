@@ -2,10 +2,8 @@ using cSharpScraper.Crawler.WebCrawler.Models;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
-using LogLevel = OpenQA.Selenium.LogLevel;
 
-namespace cSharpScraper.Crawler.Services;
+namespace cSharpScraper.Crawler.WebCrawler.Services;
 
 public class WebDriverFactory
 

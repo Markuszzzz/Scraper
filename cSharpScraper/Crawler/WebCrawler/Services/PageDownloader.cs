@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using cSharpScraper.Crawler.Services;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 

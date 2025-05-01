@@ -24,7 +24,7 @@ public class HackerOneCrawler
     }
 
 
-    public async Task CrawlHackerOneCsvScope(string scopeFile)
+    public async Task CrawlHackerOneCsvScopeAsync(string scopeFile)
     {
         var scopes = _scopeStorage.loadScopesFromCsvFile(scopeFile);
 
@@ -50,7 +50,7 @@ public class HackerOneCrawler
 
             if (scopes[i].AssetType.Equals("IP_ADDRESS"))
             {
-                if (await GetDomainNameFromIpAddress(scopes, i)) continue;
+                if (await GetDomainNameFromIpAddressAsync(scopes, i)) continue;
             }
 
             var domainToScrape = scopes[i].Identifier;
@@ -66,18 +66,18 @@ public class HackerOneCrawler
 
             if (UrlUtility.IsSubdomainWildcard(scopes[i].Identifier))
             {
-                await _subdomainCrawler.Crawl(domainToScrape);
+                await _subdomainCrawler.CrawlAsync(domainToScrape);
             }
             else
             {
                 _webCrawler.InitializeCrawler(domainToScrape);
                 
-                if (!await _webCrawler.CanBeCrawled(domainToScrape))
+                if (!await _webCrawler.CanBeCrawledAsync(domainToScrape))
                 {
                     continue;
                 }
                 
-                await _webCrawler.Crawl(domainToScrape);
+                await _webCrawler.CrawlAsync(domainToScrape);
             }
 
 
@@ -85,7 +85,7 @@ public class HackerOneCrawler
         }
     }
 
-    private async Task<bool> GetDomainNameFromIpAddress(List<StructuredScope> scopes, int i)
+    private async Task<bool> GetDomainNameFromIpAddressAsync(List<StructuredScope> scopes, int i)
     {
         IPHostEntry hostEntry;
         try

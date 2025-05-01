@@ -18,7 +18,7 @@ public class SublisterSubdomainEnumerator : ISubdomainEnumerator
         _logger = logger;
         _domainParser = domainParser;
     }
-    public async Task<List<string>> FindSubdomains(string domain)
+    public async Task<List<string>> FindSubdomainsAsync(string domain)
     {
         domain = domain.Remove(0, 1);
 

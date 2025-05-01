@@ -25,12 +25,12 @@ public class SubdomainCrawler
         _subdomainScraperStorage = subdomainScraperStorage;
     }
 
-    public async Task Crawl(string domainToScrape)
+    public async Task CrawlAsync(string domainToScrape)
     {
         var domainsToScrape = new List<string>();
         if (UrlUtility.IsSubdomainWildcard(domainToScrape))
         {
-            domainsToScrape.AddRange(await _subdomainEnumerator.FindSubdomains(domainToScrape));
+            domainsToScrape.AddRange(await _subdomainEnumerator.FindSubdomainsAsync(domainToScrape));
         }
 
 
@@ -52,7 +52,7 @@ public class SubdomainCrawler
 
             _webCrawler.InitializeCrawler(currentDomain);
 
-            if (!await _webCrawler.CanBeCrawled(currentDomain))
+            if (!await _webCrawler.CanBeCrawledAsync(currentDomain))
             {
                 _logger.LogInformation("Moving on to the next site\n");
 
@@ -62,7 +62,7 @@ public class SubdomainCrawler
             }
 
 
-            await _webCrawler.Crawl(currentDomain);
+            await _webCrawler.CrawlAsync(currentDomain);
 
             _subdomainScraperStorage.IncrementSubdomainToScrape(domainToScrape);
         }

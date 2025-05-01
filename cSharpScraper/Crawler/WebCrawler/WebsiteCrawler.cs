@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using cSharpScraper.Crawler.Services;
 using cSharpScraper.Crawler.WebCrawler.Models;
 using cSharpScraper.Crawler.WebCrawler.Services;
+using cSharpScraper.Reconnaisance.GoogleDorking;
 using cSharpScraper.Reconnaisance.SiteArchive;
 using Microsoft.Extensions.Logging;
 using Nager.PublicSuffix;
@@ -59,7 +59,7 @@ public class WebsiteCrawler
         _pageStorage.PersistDomain(DomainInfo);
     }
     
-    public async Task Crawl(string pageToCrawl)
+    public async Task CrawlAsync(string pageToCrawl)
     {
         if (!_pageStorage.HasMoreUrlsToScrape(DomainInfo))
         {
@@ -76,12 +76,12 @@ public class WebsiteCrawler
             _pageStorage.SaveUrlsToBeScraped(archivedUrls, DomainInfo);
         }
 
-        await CrawlConcurrently();
+        await CrawlConcurrentlyAsync();
 
         _logger.LogInformation("Completed crawling " + DomainInfo.FullyQualifiedDomainName + "\n");
     }
 
-    private async Task CrawlConcurrently()
+    private async Task CrawlConcurrentlyAsync()
     {
         try
         {
@@ -190,7 +190,7 @@ public class WebsiteCrawler
         return urlsOnPage.AsEnumerable();
     }
 
-    public async Task<bool> CanBeCrawled(string url)
+    public async Task<bool> CanBeCrawledAsync(string url)
     {
         url = url.StartsWith("*") ? UrlUtility.GetSecondLevelDomainFromWildcardUrl(url) : url;
 
