@@ -1,6 +1,6 @@
 using CsvHelper.Configuration.Attributes;
 
-namespace cSharpScraper.Storage.Models;
+namespace cSharpScraper.Crawler.HackerOneCrawling;
 
 public class StructuredScope
 {

@@ -1,12 +1,6 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using cSharpScraper.Crawler.WebCrawler.Models;
-using cSharpScraper.Crawler.WebCrawler.Services;
 using cSharpScraper.Reconnaisance.GoogleDorking;
 using cSharpScraper.Reconnaisance.SiteArchive;
-using Microsoft.Extensions.Logging;
-using Nager.PublicSuffix;
-using OpenQA.Selenium;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 

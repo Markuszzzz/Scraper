@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text.Json;
-using cSharpScraper.Storage.Models;
 using CsvHelper;
 using CsvHelper.Configuration;
 using JsonSerializer = System.Text.Json.JsonSerializer;

@@ -1,9 +1,4 @@
-using System.Net;
 using cSharpScraper.Crawler.SubDomainCrawler;
-using cSharpScraper.Crawler.WebCrawler;
-using cSharpScraper.Crawler.WebCrawler.Services;
-using cSharpScraper.Storage.Models;
-using Microsoft.Extensions.Logging;
 
 namespace cSharpScraper.Crawler.HackerOneCrawling;
 

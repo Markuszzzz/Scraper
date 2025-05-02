@@ -1,5 +1,4 @@
 using cSharpScraper.Infrastructure;
-using Microsoft.Extensions.Logging;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 

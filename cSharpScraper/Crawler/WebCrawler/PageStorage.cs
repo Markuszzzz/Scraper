@@ -1,8 +1,4 @@
-using cSharpScraper.Crawler.WebCrawler.Models;
-using cSharpScraper.Crawler.WebCrawler.Services;
 using EFCore.BulkExtensions;
-using Microsoft.Extensions.Logging;
-using Nager.PublicSuffix;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 

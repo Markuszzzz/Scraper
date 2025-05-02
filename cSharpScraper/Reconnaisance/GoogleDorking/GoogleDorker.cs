@@ -1,9 +1,4 @@
-using System.Diagnostics;
-using System.Net;
-using cSharpScraper.Crawler.WebCrawler.Services;
 using HtmlAgilityPack;
-using Nager.PublicSuffix;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 
 namespace cSharpScraper.Reconnaisance.GoogleDorking;

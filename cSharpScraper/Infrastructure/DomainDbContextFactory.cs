@@ -1,7 +1,5 @@
-using cSharpScraper.Crawler.WebCrawler;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Logging;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace cSharpScraper.Infrastructure;
 

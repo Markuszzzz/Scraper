@@ -1,9 +1,4 @@
-using System.Diagnostics;
 using System.Text.RegularExpressions;
-using cSharpScraper.Crawler.WebCrawler.Models;
-using cSharpScraper.Crawler.WebCrawler.Services;
-using Microsoft.Extensions.Logging;
-using Nager.PublicSuffix;
 
 namespace cSharpScraper.Reconnaisance.SubdomainDiscovery;
 

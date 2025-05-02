@@ -1,8 +1,8 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace cSharpScraper.Crawler;
+namespace cSharpScraper.Crawler.WebCrawler.Models;
 
 public class CustomConsoleFormatter : ConsoleFormatter
 {

@@ -1,18 +1,10 @@
-using cSharpScraper.Crawler;
 using cSharpScraper.Crawler.HackerOneCrawling;
 using cSharpScraper.Crawler.SubDomainCrawler;
-using cSharpScraper.Crawler.WebCrawler;
-using cSharpScraper.Crawler.WebCrawler.Models;
-using cSharpScraper.Crawler.WebCrawler.Services;
 using cSharpScraper.Reconnaisance.GoogleDorking;
 using cSharpScraper.Reconnaisance.SiteArchive;
-using cSharpScraper.Reconnaisance.SubdomainDiscovery;
 using HtmlAgilityPack;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using Nager.PublicSuffix;
 using Nager.PublicSuffix.RuleProviders;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 

@@ -1,6 +1,3 @@
-using cSharpScraper.Crawler.WebCrawler.Models;
-using Microsoft.EntityFrameworkCore;
-
 namespace cSharpScraper.Crawler.WebCrawler;
 
 public class DomainDbContext : DbContext

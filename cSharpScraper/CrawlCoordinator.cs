@@ -1,8 +1,5 @@
 using cSharpScraper.Crawler.HackerOneCrawling;
-using cSharpScraper.Crawler.WebCrawler;
-using cSharpScraper.Crawler.WebCrawler.Models;
 using cSharpScraper.Infrastructure;
-using cSharpScraper.Reconnaisance.SubdomainDiscovery;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace cSharpScraper;

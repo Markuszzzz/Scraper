@@ -1,5 +1,4 @@
 using System.CommandLine;
-using cSharpScraper.Crawler.WebCrawler.Models;
 
 namespace cSharpScraper.CommandLineParsing;
 

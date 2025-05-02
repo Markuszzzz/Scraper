@@ -1,0 +1,16 @@
+global using System;
+global using System.Diagnostics;
+global using System.Net;
+
+global using Microsoft.Extensions.Logging;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.EntityFrameworkCore.Metadata;
+global using Microsoft.EntityFrameworkCore.Migrations;
+global using cSharpScraper.Crawler.WebCrawler;
+global using cSharpScraper.Crawler.WebCrawler.Models;
+global using cSharpScraper.Crawler.WebCrawler.Services;
+global using cSharpScraper.Reconnaisance.SubdomainDiscovery;
+
+global using Nager.PublicSuffix;
+global using OpenQA.Selenium;
