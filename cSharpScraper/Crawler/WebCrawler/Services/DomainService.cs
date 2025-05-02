@@ -14,7 +14,7 @@ public class DomainService
         {
             var crawledDomainInfo = _domainParser.Parse(url);
 
-            if (crawledDomainInfo == null)
+            if (crawledDomainInfo is null)
                 return false;
             if (crawledDomainInfo.FullyQualifiedDomainName != domainInfo.FullyQualifiedDomainName)
             {
@@ -31,12 +31,12 @@ public class DomainService
 
     public bool ShouldHaveWwwSubdomain(string url, DomainInfo domainInfo)
     {
-        if (domainInfo.Subdomain != null)
+        if (domainInfo.Subdomain is not null)
             return false;
 
         var redirectDomain = _domainParser.Parse(url);
 
-        if (redirectDomain.Subdomain == "www")
+        if (redirectDomain.Subdomain is "www")
             return true;
 
         return false;

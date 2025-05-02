@@ -67,7 +67,7 @@ public class PageStorage
     public bool HasMoreUrlsToScrape(DomainInfo domainInfo)
     {
         var pages = _context.Pages.Where(x => x.RootDomain.Name == domainInfo.RegistrableDomain && !x.HasBeenCrawled);
-        if (domainInfo.Subdomain != null)
+        if (domainInfo.Subdomain is not null)
             pages = _context.Pages.Where(x => x.Subdomain.Name == domainInfo.Subdomain && x.RootDomain.Name == domainInfo.RegistrableDomain);
 
         return pages.Count() > 0;
@@ -120,7 +120,7 @@ public class PageStorage
     private Subdomain FindOrCreateSubdomain(string subdomainName, RootDomain rootDomain)
     {
         var subdomain = _context.Subdomains.FirstOrDefault(s => s.Name == subdomainName && s.DomainId == rootDomain.Id);
-        if (subdomain == null)
+        if (subdomain is null)
         {
             subdomain = new Subdomain
             {
@@ -137,7 +137,7 @@ public class PageStorage
     private RootDomain FindOrCreateRootDomain(string rootDomainName)
     {
         var rootDomain = _context.RootDomains.FirstOrDefault(d => d.Name == rootDomainName);
-        if (rootDomain == null)
+        if (rootDomain is null)
         {
             rootDomain = new RootDomain { Name = rootDomainName };
             _context.RootDomains.Add(rootDomain);

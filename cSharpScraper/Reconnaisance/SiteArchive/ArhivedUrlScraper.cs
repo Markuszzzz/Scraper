@@ -71,9 +71,9 @@ public class ArchivedUrlCollector
         
         foreach (var result in results)
         {
-            if (result.Status < 400)
+            if (result.Status is < 400)
                 ulrsThatAreUp.Add(result.Url);
-            if (result.Status >= 300 && result.Status < 400)
+            if (result.Status is >= 300 and < 400)
             {
                 Console.WriteLine("Redirected: " + result.Url);
             }

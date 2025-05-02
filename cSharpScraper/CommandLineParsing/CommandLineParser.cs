@@ -39,7 +39,7 @@ public static class CommandLineParser
                 foreach (var item in result.Tokens)
                 {
                     var parts = item.Value.Split('=');
-                    if (parts.Length == 2)
+                    if (parts.Length is 2)
                     {
                         headers[parts[0].Trim()] = parts[1].Trim();
                     }

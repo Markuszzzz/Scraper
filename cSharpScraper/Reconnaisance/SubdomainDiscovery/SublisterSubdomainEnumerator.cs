@@ -118,7 +118,7 @@ public class SublisterSubdomainEnumerator : ISubdomainEnumerator
         });
 
         var results = await Task.WhenAll(tasks);
-        return results.Where(url => url != null).ToList();
+        return results.Where(url => url is not null).ToList();
     }
 }
 

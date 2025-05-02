@@ -72,7 +72,7 @@ public static class UrlUtility
         if (scriptUrl.StartsWith("/"))
         {
             //protocol relative URl
-            if (scriptUrl.Length > 1 && scriptUrl[1] == '/')
+            if (scriptUrl.Length is > 1 and '/')
             {
                 var scheme = new Uri(currentUrl).GetLeftPart(UriPartial.Scheme);
                 
@@ -102,7 +102,7 @@ public static class UrlUtility
 public static string GetSecondLevelDomainFromWildcardUrl(string wildcardUrl)
     {
         var i = 0;
-        while (wildcardUrl[i] == '*' || wildcardUrl[i] == '.')
+        while (wildcardUrl[i] is '*' or '.')
             i++;
 
         return wildcardUrl[i..];

@@ -91,7 +91,7 @@ public class GoogleDorker
             var urlsOnPage = GetUrlsOnPage(pageSource, domainInfo);
             allUrls.AddRange(urlsOnPage);
             href = FindNextTab(nextTab++, pageSource);
-            if (href == null) continue;
+            if (href is null) continue;
             
             var toGo = "https://" + "www.google.com" + href;
             try
@@ -105,7 +105,7 @@ public class GoogleDorker
             }
             Thread.Sleep((int)(1 + new Random().NextDouble() * 0.5) * 1000);
             
-        } while (href != null && nextTab < maxTabs);
+        } while (href is not null && nextTab < maxTabs);
 
         return allUrls;
     }
@@ -116,15 +116,15 @@ public class GoogleDorker
         document.LoadHtml(pageSource);
         var tbodyNode = document.DocumentNode.SelectSingleNode("//tbody");
 
-        if (tbodyNode != null)
+        if (tbodyNode is not null)
         {
             var tdNodes = tbodyNode.SelectNodes(".//td[position() > 1]");
-            if (tdNodes != null)
+            if (tdNodes is not null)
             {
                 foreach (var td in tdNodes)
                 {
                     var anchorNode = td.SelectSingleNode(".//a[@href]");
-                    if (anchorNode != null)
+                    if (anchorNode is not null)
                     {
                         var href = anchorNode.GetAttributeValue("href", "No href found");
                         if (td.InnerText == nextTab.ToString())
@@ -141,7 +141,7 @@ public class GoogleDorker
         var document = new HtmlDocument();
         document.LoadHtml(pageSource);
         var urlsOnPage = document.DocumentNode.SelectNodes("//a[@href] | //script[@src]")
-            ?.Select(x => x.GetAttributeValue("href", null) ?? x.GetAttributeValue("src", null))?.Where(x => x != null);
+            ?.Select(x => x.GetAttributeValue("href", null) ?? x.GetAttributeValue("src", null))?.Where(x => x is not null);
 
         var urls = urlsOnPage?.ToList() ?? new List<string>();
         return urls.Where(x => x.StartsWith("https://" + domain.FullyQualifiedDomainName)).Select(WebUtility.UrlDecode).Select(WebUtility.HtmlDecode).ToList();

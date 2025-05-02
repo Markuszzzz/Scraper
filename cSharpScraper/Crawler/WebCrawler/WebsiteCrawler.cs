@@ -113,7 +113,7 @@ public class WebsiteCrawler
 
                             var pageContent = _pageDownloader.DownloadPage(driver, urlToCrawl);
                             
-                            if (pageContent == null)
+                            if (pageContent is null)
                                 return;
                             
                             page.Content = pageContent;
@@ -207,7 +207,7 @@ public class WebsiteCrawler
             return true;
         }
 
-        if ((int)res.StatusCode < 300 || (int)res.StatusCode > 400)
+        if ((int)res.StatusCode is < 300 or > 400)
         {
             _logger.LogInformation($"Status code: {(int)res.StatusCode} {res.StatusCode}.");
             _logger.LogInformation("Can not be crawled");
@@ -228,7 +228,7 @@ public class WebsiteCrawler
     private string FollowRedirects(string newUrl, HttpResponseMessage res)
     {
         var maxRedirect = 0;
-        while ((int)res.StatusCode >= 300 && (int)res.StatusCode < 400)
+        while ((int)res.StatusCode is >= 300 and < 400)
         {
             if (maxRedirect > 10)
                 return newUrl;
