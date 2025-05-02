@@ -1,5 +1,3 @@
-using Nager.PublicSuffix;
-
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
 public class DomainService
@@ -27,8 +25,7 @@ public class DomainService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"url is {url}");
-            throw new Exception("new", e);
+            throw new Exception($"Error while testing if {nameof(url)}:{url} is in scope", e);
         }
     }
 
