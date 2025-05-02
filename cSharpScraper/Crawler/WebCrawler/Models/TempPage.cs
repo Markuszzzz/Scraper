@@ -1,5 +1,3 @@
-using Nager.PublicSuffix;
-
 namespace cSharpScraper.Crawler.WebCrawler.Models;
 
 public class TempPage
