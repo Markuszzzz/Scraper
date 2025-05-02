@@ -2,6 +2,10 @@ namespace cSharpScraper.Crawler.WebCrawler.Services;
 
 public static class UrlUtility
 {
+    
+    private static readonly string[] BlacklistedExtensions = [".png", ".jpg", ".jpeg", ".gif",];
+
+
     public static string RemoveAnchorTagFromUrl(string url)
     {
         string trimmedUrl;
@@ -33,10 +37,8 @@ public static class UrlUtility
         }
 
         var extension = Path.GetExtension(absoluteUrl);
-        return !extension.Equals(".png", StringComparison.OrdinalIgnoreCase) &&
-               !extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) &&
-               !extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) &&
-               !extension.Equals(".gif", StringComparison.OrdinalIgnoreCase);
+        
+        return !BlacklistedExtensions.Any(x => x.Equals(extension, StringComparison.OrdinalIgnoreCase));
     }
 
     public static string GetDomainWithSubdomains(string url)
