@@ -2,16 +2,10 @@ using cSharpScraper.Infrastructure;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 
-public class PageStorageFactory
+public class PageStorageFactory(DomainDbContextFactory domainDbContextFactory, ILogger<PageStorage> pageStorageLogger)
 {
-    private readonly DomainDbContextFactory _domainDbContextFactory;
-    private readonly ILogger<PageStorage> _pageStorageLogger;
-
-    public PageStorageFactory(DomainDbContextFactory domainDbContextFactory, ILogger<PageStorage> pageStorageLogger)
-    {
-        _domainDbContextFactory = domainDbContextFactory;
-        _pageStorageLogger = pageStorageLogger;
-    }
+    private readonly DomainDbContextFactory _domainDbContextFactory = domainDbContextFactory;
+    private readonly ILogger<PageStorage> _pageStorageLogger = pageStorageLogger;
 
     public PageStorage CreatePageStorage()
     {

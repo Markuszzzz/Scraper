@@ -4,10 +4,8 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace cSharpScraper.Crawler.WebCrawler.Models;
 
-public class CustomConsoleFormatter : ConsoleFormatter
+public class CustomConsoleFormatter() : ConsoleFormatter(nameof(CustomConsoleFormatter))
 {
-    public CustomConsoleFormatter() : base(nameof(CustomConsoleFormatter)) { }
-
     public override void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter)
     {
         string logLevelColor = logEntry.LogLevel switch

@@ -4,47 +4,39 @@ using cSharpScraper.Reconnaisance.SiteArchive;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 
-public class WebsiteCrawler
+public class WebsiteCrawler(
+    PageStorage pageStorage,
+    DomainParser domainParser,
+    ILogger<WebsiteCrawler> logger,
+    HttpClient httpClient,
+    CrawlerSettings crawlerSettings,
+    GoogleDorker googleDorker,
+    ArchivedUrlCollector archivedUrlCollector,
+    PageStorageFactory pageStorageFactory,
+    WebDriverFactory webDriverFactory,
+    PageDownloader pageDownloader,
+    DomainService domainService,
+    DocParser docParser,
+    PageBatcher pageBatcher)
 {
-    private readonly PageStorage _pageStorage;
-    private readonly DomainParser _domainParser;
-    private readonly ILogger<WebsiteCrawler> _logger;
-    private readonly HttpClient _httpClient;
-    private readonly CrawlerSettings _crawlerSettings;
-    private readonly GoogleDorker _googleDorker;
-    private readonly ArchivedUrlCollector _archivedUrlCollector;
-    private readonly PageStorageFactory _pageStorageFactory;
-    private readonly WebDriverFactory _webDriverFactory;
-    private readonly PageDownloader _pageDownloader;
-    private readonly DomainService _domainService;
-    private readonly DocParser _docParser;
-    private readonly PageBatcher _pageBatcher;
+    private readonly PageStorage _pageStorage = pageStorage;
+    private readonly DomainParser _domainParser = domainParser;
+    private readonly ILogger<WebsiteCrawler> _logger = logger;
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly CrawlerSettings _crawlerSettings = crawlerSettings;
+    private readonly GoogleDorker _googleDorker = googleDorker;
+    private readonly ArchivedUrlCollector _archivedUrlCollector = archivedUrlCollector;
+    private readonly PageStorageFactory _pageStorageFactory = pageStorageFactory;
+    private readonly WebDriverFactory _webDriverFactory = webDriverFactory;
+    private readonly PageDownloader _pageDownloader = pageDownloader;
+    private readonly DomainService _domainService = domainService;
+    private readonly DocParser _docParser = docParser;
+    private readonly PageBatcher _pageBatcher = pageBatcher;
     private DomainInfo? DomainInfo { get; set; }
 
     private Stopwatch ConcurrencyStopwatch { get; } = new();
     private Stopwatch DownloadPageStopwatch { get; } = new();
 
-
-    public WebsiteCrawler(PageStorage pageStorage, 
-        DomainParser domainParser,
-        ILogger<WebsiteCrawler> logger, HttpClient httpClient, CrawlerSettings crawlerSettings,
-        GoogleDorker googleDorker, ArchivedUrlCollector archivedUrlCollector, PageStorageFactory pageStorageFactory,
-        WebDriverFactory webDriverFactory, PageDownloader pageDownloader, DomainService domainService, DocParser docParser, PageBatcher pageBatcher)
-    {
-        _pageStorage = pageStorage;
-        _domainParser = domainParser;
-        _logger = logger;
-        _httpClient = httpClient;
-        _crawlerSettings = crawlerSettings;
-        _googleDorker = googleDorker;
-        _archivedUrlCollector = archivedUrlCollector;
-        _pageStorageFactory = pageStorageFactory;
-        _webDriverFactory = webDriverFactory;
-        _pageDownloader = pageDownloader;
-        _domainService = domainService;
-        _docParser = docParser;
-        _pageBatcher = pageBatcher;
-    }
 
     public void InitializeCrawler(string url)
     {

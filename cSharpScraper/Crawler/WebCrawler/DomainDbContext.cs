@@ -1,14 +1,11 @@
 namespace cSharpScraper.Crawler.WebCrawler;
 
-public class DomainDbContext : DbContext
+public class DomainDbContext(DbContextOptions<DomainDbContext> options) : DbContext(options)
 {
     public DbSet<RootDomain> RootDomains { get; set; } = null!;
     public DbSet<Subdomain> Subdomains { get; set; } = null!;
     public DbSet<Page> Pages { get; set; } = null!;
 
-    public DomainDbContext(DbContextOptions<DomainDbContext> options) : base(options) { }
-
-    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

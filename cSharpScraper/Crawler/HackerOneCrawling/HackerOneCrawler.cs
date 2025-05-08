@@ -2,22 +2,16 @@ using cSharpScraper.Crawler.SubDomainCrawler;
 
 namespace cSharpScraper.Crawler.HackerOneCrawling;
 
-public class HackerOneCrawler
+public class HackerOneCrawler(
+    WebsiteCrawler webCrawler,
+    ScopeStorage scopeStorage,
+    ILogger<HackerOneCrawler> logger,
+    SubdomainCrawler subdomainCrawler)
 {
-    private readonly WebsiteCrawler _webCrawler;
-    private readonly ScopeStorage _scopeStorage;
-    private readonly ILogger<HackerOneCrawler> _logger;
-    private readonly SubdomainCrawler _subdomainCrawler;
-
-    public HackerOneCrawler(WebsiteCrawler webCrawler, ScopeStorage scopeStorage, ILogger<HackerOneCrawler> logger, SubdomainCrawler subdomainCrawler)
-
-    {
-        _webCrawler = webCrawler;
-        _scopeStorage = scopeStorage;
-        _logger = logger;
-        _subdomainCrawler = subdomainCrawler;
-    }
-
+    private readonly WebsiteCrawler _webCrawler = webCrawler;
+    private readonly ScopeStorage _scopeStorage = scopeStorage;
+    private readonly ILogger<HackerOneCrawler> _logger = logger;
+    private readonly SubdomainCrawler _subdomainCrawler = subdomainCrawler;
 
     public async Task CrawlHackerOneCsvScopeAsync(string scopeFile)
     {

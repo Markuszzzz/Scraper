@@ -2,17 +2,11 @@ using EFCore.BulkExtensions;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 
-public class PageStorage
+public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
 {
-    private readonly ILogger<PageStorage> _logger;
-    private readonly DomainDbContext _context;
+    private readonly ILogger<PageStorage> _logger = logger;
+    private readonly DomainDbContext _context = context;
 
-
-    public PageStorage(ILogger<PageStorage> logger, DomainDbContext context)        
-    {
-        _logger = logger;       
-        _context = context;
-    }
 
     public IEnumerable<Page> GetNextPagesToScrape(DomainInfo domainInfo)
     {

@@ -3,19 +3,12 @@ using OpenQA.Selenium.Support.UI;
 
 namespace cSharpScraper.Reconnaisance.GoogleDorking;
 
-public class GoogleDorker
+public class GoogleDorker(IWebDriver webDriver)
 {
-    private readonly WebDriverFactory _factory;
-    private IWebDriver _webDriver;
+    private readonly IWebDriver _webDriver = webDriver;
 
-    public GoogleDorker(WebDriverFactory factory)
-    {
-        _factory = factory;
-    }
     public List<string> DorkUrls(DomainInfo domainInfo)
     {
-        _webDriver = _factory.CreateGoogleDorkingWebdriver(null);
-
         var openRedirectKeywords = new List<string>
         {
             "redirect_url",

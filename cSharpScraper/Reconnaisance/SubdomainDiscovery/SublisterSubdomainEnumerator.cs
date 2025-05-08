@@ -3,16 +3,12 @@ using System.Text.RegularExpressions;
 namespace cSharpScraper.Reconnaisance.SubdomainDiscovery;
 
 
-public class SublisterSubdomainEnumerator : ISubdomainEnumerator
+public class SublisterSubdomainEnumerator(ILogger<SublisterSubdomainEnumerator> logger, DomainParser domainParser)
+    : ISubdomainEnumerator
 {
-    private readonly ILogger<SublisterSubdomainEnumerator> _logger;
-    private readonly DomainParser _domainParser;
+    private readonly ILogger<SublisterSubdomainEnumerator> _logger = logger;
+    private readonly DomainParser _domainParser = domainParser;
 
-    public SublisterSubdomainEnumerator(ILogger<SublisterSubdomainEnumerator> logger, DomainParser domainParser)
-    {
-        _logger = logger;
-        _domainParser = domainParser;
-    }
     public async Task<List<string>> FindSubdomainsAsync(string domain)
     {
         domain = domain.Remove(0, 1);

@@ -1,22 +1,15 @@
 namespace cSharpScraper.Crawler.SubDomainCrawler;
 
-public class SubdomainCrawler
+public class SubdomainCrawler(
+    WebsiteCrawler webCrawler,
+    ILogger<SubdomainCrawler> logger,
+    ISubdomainEnumerator subdomainEnumerator,
+    SubdomainScraperStorage subdomainScraperStorage)
 {
-    private readonly WebsiteCrawler _webCrawler;
-    private readonly ILogger<SubdomainCrawler> _logger;
-    private readonly ISubdomainEnumerator _subdomainEnumerator;
-    private readonly SubdomainScraperStorage _subdomainScraperStorage;
-
-    public SubdomainCrawler(WebsiteCrawler webCrawler, ILogger<SubdomainCrawler> logger,
-        ISubdomainEnumerator subdomainEnumerator,
-        SubdomainScraperStorage subdomainScraperStorage)
-
-    {
-        _webCrawler = webCrawler;
-        _logger = logger;
-        _subdomainEnumerator = subdomainEnumerator;
-        _subdomainScraperStorage = subdomainScraperStorage;
-    }
+    private readonly WebsiteCrawler _webCrawler = webCrawler;
+    private readonly ILogger<SubdomainCrawler> _logger = logger;
+    private readonly ISubdomainEnumerator _subdomainEnumerator = subdomainEnumerator;
+    private readonly SubdomainScraperStorage _subdomainScraperStorage = subdomainScraperStorage;
 
     public async Task CrawlAsync(string domainToScrape)
     {
