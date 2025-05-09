@@ -9,7 +9,7 @@ public class WebsiteCrawler(
     DomainParser domainParser,
     ILogger<WebsiteCrawler> logger,
     HttpClient httpClient,
-    CrawlerSettings crawlerSettings,
+    IOptions<CrawlerSettings> crawlerSettings,
     GoogleDorker googleDorker,
     ArchivedUrlCollector archivedUrlCollector,
     PageStorageFactory pageStorageFactory,
@@ -75,7 +75,7 @@ public class WebsiteCrawler(
 
             for (var i = 0; i < 8; i++)
             {
-                driverPool.Add(_webDriverFactory.CreateScrapingWebdriver(_crawlerSettings));
+                driverPool.Add(_webDriverFactory.CreateScrapingWebdriver());
             }
 
             var temporaryPages = new BlockingCollection<Page>(1000);
@@ -125,7 +125,7 @@ public class WebsiteCrawler(
                             if (ex.Message.Contains("timed out after") && ex.Message.Contains("localhost"))
                             {
                                 driver.Dispose();
-                                driver = _webDriverFactory.CreateScrapingWebdriver(_crawlerSettings);
+                                driver = _webDriverFactory.CreateScrapingWebdriver();
                             }
                         }
                         catch (Exception ex)

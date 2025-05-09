@@ -5,9 +5,10 @@ using OpenQA.Selenium.Chrome;
 
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
-public class WebDriverFactory(ILogger<WebDriverFactory> logger)
+public class WebDriverFactory(ILogger<WebDriverFactory> logger, IOptions<CrawlerSettings> crawlerSettings)
 {
     private readonly ILogger<WebDriverFactory> _logger = logger;
+    private readonly IOptions<CrawlerSettings> _crawlerSettings = crawlerSettings;
 
     public WebDriverFactory(ILogger<WebDriverFactory> logger)
     {
@@ -23,7 +24,7 @@ public class WebDriverFactory(ILogger<WebDriverFactory> logger)
         return driver;
     }
     
-    public IWebDriver CreateScrapingWebdriver(CrawlerSettings crawlerSettings)
+    public IWebDriver CreateScrapingWebdriver()
     {
         var maxRetries = 3;
         var retries = 0;

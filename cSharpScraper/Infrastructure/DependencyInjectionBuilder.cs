@@ -16,6 +16,16 @@ public static class DependencyInjectionBuilder
         _ = ruleProvider.BuildAsync().Result;
 
         var serviceCollection = new ServiceCollection()
+            .Configure<CrawlerSettings>(options =>
+            {
+                options.Url = crawlerSettings.Url;
+                options.Scope = crawlerSettings.Scope;
+                options.Eager = crawlerSettings.Eager;
+                options.Headless = crawlerSettings.Headless;
+                options.RequestDelay = crawlerSettings.RequestDelay;
+                options.Headers = crawlerSettings.Headers;
+                options.ProxyAddress = crawlerSettings.ProxyAddress;
+            })
             .AddTransient<DomainDbContextFactory>()
             .AddTransient<HtmlDocument>()
             .AddTransient<DocParser>()
