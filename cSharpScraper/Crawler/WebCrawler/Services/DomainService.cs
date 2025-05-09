@@ -1,6 +1,6 @@
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
-public class DomainService
+public class DomainService(DomainParser domainParser)
 {
     private readonly DomainParser _domainParser;
 

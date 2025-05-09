@@ -2,15 +2,10 @@ using HtmlAgilityPack;
 
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
-public class DocParser
+public class DocParser(HtmlDocument htmlDocument)
 {
-    private readonly HtmlDocument _htmlDocument;
+    private readonly HtmlDocument _htmlDocument = htmlDocument;
 
-    public DocParser(HtmlDocument htmlDocument)
-    {
-        _htmlDocument = htmlDocument;
-    }
-    
     public IEnumerable<string> GetLinksFromPageSource(string pageSource)
     {
         _htmlDocument.LoadHtml(pageSource);

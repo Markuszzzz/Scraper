@@ -5,10 +5,9 @@ using OpenQA.Selenium.Chrome;
 
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
-public class WebDriverFactory
-
+public class WebDriverFactory(ILogger<WebDriverFactory> logger)
 {
-    private readonly ILogger<WebDriverFactory> _logger;
+    private readonly ILogger<WebDriverFactory> _logger = logger;
 
     public WebDriverFactory(ILogger<WebDriverFactory> logger)
     {

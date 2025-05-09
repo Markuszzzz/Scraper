@@ -4,14 +4,9 @@ using OpenQA.Selenium;
 
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
-public class PageDownloader
+public class PageDownloader(ILogger<PageDownloader> logger)
 {
-    private readonly ILogger<PageDownloader> _logger;
-
-    public PageDownloader(ILogger<PageDownloader> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<PageDownloader> _logger = logger;
 
     public string? DownloadPage(IWebDriver webDriver, string url)
     {
