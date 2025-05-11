@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using cSharpScraper.Crawler.WebCrawler;
 
@@ -11,9 +12,11 @@ using cSharpScraper.Crawler.WebCrawler;
 namespace cSharpScraper.Migrations
 {
     [DbContext(typeof(DomainDbContext))]
-    partial class DomainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250511203329_AddStatusCodeToPage")]
+    partial class AddStatusCodeToPage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,9 +45,6 @@ namespace cSharpScraper.Migrations
 
                     b.Property<bool>("HasCompoundUrl")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("RedirectedFrom")
-                        .HasColumnType("longtext");
 
                     b.Property<int>("RootDomainId")
                         .HasColumnType("int");

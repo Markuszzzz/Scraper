@@ -1,12 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace cSharpScraper.Reconnaisance.SiteArchive;
+namespace cSharpScraper.Reconnaissance.ArchivedUrlDiscovery;
 
 public static class ArchivedUrlCollectorRegistration
 {
     public static IServiceCollection AddArchivedUrlCollector(this IServiceCollection services)
     {
-        services.AddTransient<ArchivedUrlCollector>();
+        services.AddTransient<IArchivedUrlCollector, WayBackUrlCollector>();
+        services.AddTransient<IArchivedUrlDiscoveryService, ArchivedUrlDiscoveryService>();
         return services;
     }
 }

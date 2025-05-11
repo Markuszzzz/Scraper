@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cSharpScraper", "cSharpScra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cSharpScraperTests", "cSharpScraperTests\cSharpScraperTests.csproj", "{0C41A2E7-38CB-4CAB-8ED4-EB4D3F236634}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{F229A440-6047-4C35-91EE-A41F733B84C8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +24,5 @@ Global
 		{0C41A2E7-38CB-4CAB-8ED4-EB4D3F236634}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C41A2E7-38CB-4CAB-8ED4-EB4D3F236634}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C41A2E7-38CB-4CAB-8ED4-EB4D3F236634}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F229A440-6047-4C35-91EE-A41F733B84C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F229A440-6047-4C35-91EE-A41F733B84C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F229A440-6047-4C35-91EE-A41F733B84C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F229A440-6047-4C35-91EE-A41F733B84C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

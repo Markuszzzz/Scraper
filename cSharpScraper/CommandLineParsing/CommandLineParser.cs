@@ -1,4 +1,5 @@
 using System.CommandLine;
+using Nager.PublicSuffix.RuleProviders;
 
 namespace cSharpScraper.CommandLineParsing;
 
@@ -6,13 +7,14 @@ public static class CommandLineParser
 {
     public static RootCommand SetupCommandLineParser()
     {
-        var urlArgument = new Argument<string>(
+        var targetArgument = new Argument<string>(
             "url",
-            description: "The URL to crawl or the HackerOne CSV scope file");
-
-        var scopeOption = new Option<bool>(
-            "--scope",
-            description: "Crawl using scope logic");
+            description:
+            "The full URL to crawl (e.g. 'https://www.example.com'). If --crawl-subdomains is enabled, provide a registrable domain (e.g. 'example.com').");
+        
+        var crawlSubdomainsOption = new Option<bool>(
+            "--crawl-subdomains",
+            description: "Allow crawling of subdomains");
 
         var eagerOption = new Option<bool>(
             "--eager",
@@ -57,8 +59,8 @@ public static class CommandLineParser
 
         var rootCommand = new RootCommand("Crawler CLI Application")
         {
-            urlArgument,
-            scopeOption,
+            targetArgument,
+            crawlSubdomainsOption,
             eagerOption,
             headlessOption,
             requestDelayOption,
@@ -66,20 +68,20 @@ public static class CommandLineParser
             headersOption
         };
 
-        rootCommand.SetHandler(async (url, eager, scope, headless, requestDelay, proxyAddress, header) =>
+        rootCommand.SetHandler(async (target, eager, crawlSubdomains, headless, requestDelay, proxyAddress, header) =>
             {
                 var crawlerSettings = new CrawlerSettings
                 {
-                    Url = url,
+                    Target = target,
                     Eager = eager,
-                    Scope = scope,
+                    CrawlSubdomains = crawlSubdomains,
                     Headless = headless,
                     RequestDelay = requestDelay,
                     ProxyAddress = proxyAddress,
                     Headers = header
                 };
                 await CrawlCoordinator.StartAsync(crawlerSettings);
-            }, urlArgument, eagerOption, scopeOption, headlessOption, requestDelayOption, proxyAddressOption,
+            }, targetArgument, eagerOption, crawlSubdomainsOption, headlessOption, requestDelayOption, proxyAddressOption,
             headersOption);
 
         return rootCommand;

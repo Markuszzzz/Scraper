@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace cSharpScraper.Crawler.WebCrawler.Models;
 
 public class Page
@@ -9,6 +11,10 @@ public class Page
     public bool HasCompoundUrl { get; set; } 
     public bool HasBeenScanned { get; set; }
     
+    public int? StatusCode { get; set; }
+    public string? RedirectedFrom { get; set; }
+    
+    [NotMapped]
     public List<string> UrlsOnPage { get; set; }
     
     

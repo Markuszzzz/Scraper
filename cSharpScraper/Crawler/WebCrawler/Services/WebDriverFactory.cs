@@ -1,7 +1,7 @@
-using cSharpScraper.Crawler.WebCrawler.Models;
-using Microsoft.Extensions.Logging;
-using OpenQA.Selenium;
+using Microsoft.Extensions.Options;
 using OpenQA.Selenium.Chrome;
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
 
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
@@ -10,18 +10,22 @@ public class WebDriverFactory(ILogger<WebDriverFactory> logger, IOptions<Crawler
     private readonly ILogger<WebDriverFactory> _logger = logger;
     private readonly IOptions<CrawlerSettings> _crawlerSettings = crawlerSettings;
 
-    public WebDriverFactory(ILogger<WebDriverFactory> logger)
-    {
-        _logger = logger;
-    }
-    public IWebDriver CreateGoogleDorkingWebdriver(CrawlerSettings crawlerSettings)
+
+    public IWebDriver CreateGoogleDorkingWebdriver()
     {
         _logger.LogInformation("Creating google driver for google dorking");
+
+        new DriverManager().SetUpDriver(new ChromeConfig());
+        
         ChromeOptions options = new ChromeOptions();
         var service = ChromeDriverService.CreateDefaultService();
         service.Port = new Random().Next(10000, 65535);
         var driver = new ChromeDriver(service, options, TimeSpan.FromSeconds(15));
+        
+        Task.Delay(2000);
+
         return driver;
+        
     }
     
     public IWebDriver CreateScrapingWebdriver()
@@ -41,6 +45,11 @@ public class WebDriverFactory(ILogger<WebDriverFactory> logger, IOptions<Crawler
                 options.AddArgument("--disable-extensions");
                 options.AddArgument("--disable-notifications");
                 options.AddArgument("--window-size=800,600");
+                
+                if(string.IsNullOrWhiteSpace(_crawlerSettings.Value.ProxyAddress))
+                {
+                    options.AddArgument($"--proxy-server={_crawlerSettings.Value.ProxyAddress}");
+                }
                 options.AddArgument($"--proxy-server=http://localhost:8081");
 
                 options.AddArgument("--disable-gpu"); 

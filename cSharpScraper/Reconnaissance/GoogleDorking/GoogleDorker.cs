@@ -6,7 +6,7 @@ namespace cSharpScraper.Reconnaisance.GoogleDorking;
 public class GoogleDorker(IWebDriver webDriver)
 {
     private readonly IWebDriver _webDriver = webDriver;
-
+    
     public List<string> DorkUrls(DomainInfo domainInfo)
     {
         var openRedirectKeywords = new List<string>

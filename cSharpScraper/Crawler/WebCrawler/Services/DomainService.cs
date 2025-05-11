@@ -2,17 +2,11 @@ namespace cSharpScraper.Crawler.WebCrawler.Services;
 
 public class DomainService(DomainParser domainParser)
 {
-    private readonly DomainParser _domainParser;
-
-    public DomainService(DomainParser domainParser)
-    {
-        _domainParser = domainParser;
-    }
     public bool IsInScope(string url, DomainInfo domainInfo)
     {
         try
         {
-            var crawledDomainInfo = _domainParser.Parse(url);
+            var crawledDomainInfo = domainParser.Parse(url);
 
             if (crawledDomainInfo is null)
                 return false;
@@ -34,7 +28,7 @@ public class DomainService(DomainParser domainParser)
         if (domainInfo.Subdomain is not null)
             return false;
 
-        var redirectDomain = _domainParser.Parse(url);
+        var redirectDomain = domainParser.Parse(url);
 
         if (redirectDomain.Subdomain is "www")
             return true;

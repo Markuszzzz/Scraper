@@ -1,3 +1,4 @@
+using cSharpScraper.Reconnaissance.Httpx;
 using EFCore.BulkExtensions;
 
 namespace cSharpScraper.Crawler.WebCrawler;
@@ -21,22 +22,20 @@ public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
     public void PersistDomain(DomainInfo domainInfo)
     {
         var rootDomainName = domainInfo.RegistrableDomain;
-        var subdomainName = domainInfo.Subdomain;
         var rootDomain = FindOrCreateRootDomain(rootDomainName);
-        if (domainInfo.Subdomain.Count() > 0)
-        {
-            FindOrCreateSubdomain(subdomainName, rootDomain);
-        }
+
+        if (domainInfo.Subdomain.Count() == 0) 
+            return;
+        
+        var subdomainName = domainInfo.Subdomain;
+        FindOrCreateSubdomain(subdomainName, rootDomain);
     }
 
-    public void SavePageToBeCrawled(string url, DomainInfo domainInfo)
+    public void SavePageToBeCrawled(CrawlTarget crawlTarget)
     {
-        var rootDomainName = domainInfo.RegistrableDomain;
-        var subdomainName = domainInfo.Subdomain;
-        var rootDomain = FindOrCreateRootDomain(rootDomainName);
-        var subdomain = FindOrCreateSubdomain(subdomainName, rootDomain);
+        var (rootDomain, subdomain) = FindOrCreateDomainEntities(crawlTarget.DomainInfo);
 
-        var urlWithoutQueryParams = UrlUtility.RemoveQueryParamsFromUrl(url);
+        var urlWithoutQueryParams = UrlUtility.RemoveQueryParamsFromUrl(crawlTarget.Url);
 
         if (_context.Pages.Where(x => x.HasBeenCrawled && x.RootDomainId.Equals(rootDomain.Id)).AsEnumerable().Any(x =>
                 UrlUtility.RemoveQueryParamsFromUrl(x.Url).Equals(urlWithoutQueryParams)))
@@ -48,11 +47,11 @@ public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
 
         _context.Pages.Add(new Page
         {
-            Url = url,
+            Url = crawlTarget.Url,
             HasBeenCrawled = false,
             Content = string.Empty,
             RootDomainId = rootDomain.Id,
-            SubdomainId = subdomain?.Id
+            SubdomainId = subdomain.Id
         });
 
         _context.SaveChanges();
@@ -72,10 +71,7 @@ public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
         if (!urls.Any())
             return;
 
-        var rootDomainName = domainInfo.RegistrableDomain;
-        var subdomainName = domainInfo.Subdomain;
-        var rootDomain = FindOrCreateRootDomain(rootDomainName);
-        var subdomain = FindOrCreateSubdomain(subdomainName, rootDomain);
+        var (rootDomain, subdomain) = FindOrCreateDomainEntities(domainInfo);
 
         foreach (var url in urls)
         {
@@ -89,6 +85,38 @@ public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
                 SubdomainId = subdomain.Id,
                 RootDomainId = rootDomain.Id
             };
+
+            _context.Pages.Add(page);
+        }
+
+        _context.SaveChanges();
+    }
+    
+    public void SaveUrlsToBeScraped(IEnumerable<HttpxResult> httpxResults, DomainInfo domainInfo)
+    {
+        if (!httpxResults.Any())
+            return;
+
+        var (rootDomain, subdomain) = FindOrCreateDomainEntities(domainInfo);
+
+        foreach (var httpxResult in httpxResults)
+        {
+            if (_context.Pages.Any(p => p.Url == httpxResult.Url)) continue;
+
+            var page = new Page
+            {
+                Url = httpxResult.Url,
+                StatusCode = httpxResult.StatusCode,
+                HasBeenCrawled = false,
+                Content = string.Empty, 
+                SubdomainId = subdomain.Id,
+                RootDomainId = rootDomain.Id
+            };
+
+            if (httpxResult.RedirectedFrom is not null)
+            {
+                page.RedirectedFrom = httpxResult.RedirectedFrom;
+            }
 
             _context.Pages.Add(page);
         }
@@ -111,6 +139,51 @@ public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
         _context.BulkUpdate(pages);
     }
 
+    public void SavePagesToBeCrawled(List<string> urls, DomainInfo domainInfo)
+    {
+        if (!urls.Any())
+            return;
+        
+        var (rootDomain, subdomain) = FindOrCreateDomainEntities(domainInfo);
+
+        var newPages = urls
+            .Where(url => !_context.Pages.Any(p => p.Url == url)) 
+            .Select(url => new Page
+            {
+                Url = url,
+                HasBeenCrawled = false,
+                Content = string.Empty,
+                RootDomainId = rootDomain.Id,
+                SubdomainId = subdomain?.Id
+            })
+            .ToList();
+
+        _context.Pages.AddRange(newPages);
+        _context.SaveChanges(); 
+    }
+
+    private (RootDomain, Subdomain) FindOrCreateDomainEntities(DomainInfo domainInfo)
+    {
+        var rootDomainName = domainInfo.RegistrableDomain;
+        var subdomainName = domainInfo.Subdomain;
+        var rootDomain = FindOrCreateRootDomain(rootDomainName);
+        var subdomain = FindOrCreateSubdomain(subdomainName, rootDomain);
+        return (rootDomain, subdomain);
+    }
+    
+    private RootDomain FindOrCreateRootDomain(string rootDomainName)
+    {
+        var rootDomain = _context.RootDomains.FirstOrDefault(d => d.Name == rootDomainName);
+        if (rootDomain is null)
+        {
+            rootDomain = new RootDomain { Name = rootDomainName };
+            _context.RootDomains.Add(rootDomain);
+            _context.SaveChanges();
+        }
+
+        return rootDomain;
+    }
+    
     private Subdomain FindOrCreateSubdomain(string subdomainName, RootDomain rootDomain)
     {
         var subdomain = _context.Subdomains.FirstOrDefault(s => s.Name == subdomainName && s.DomainId == rootDomain.Id);
@@ -128,41 +201,4 @@ public class PageStorage(ILogger<PageStorage> logger, DomainDbContext context)
         return subdomain;
     }
 
-    private RootDomain FindOrCreateRootDomain(string rootDomainName)
-    {
-        var rootDomain = _context.RootDomains.FirstOrDefault(d => d.Name == rootDomainName);
-        if (rootDomain is null)
-        {
-            rootDomain = new RootDomain { Name = rootDomainName };
-            _context.RootDomains.Add(rootDomain);
-            _context.SaveChanges();
-        }
-
-        return rootDomain;
-    }
-    
-
-
-    public void SavePagesToBeCrawled(List<string> urls, DomainInfo domainInfo)
-    {
-        var rootDomainName = domainInfo.RegistrableDomain;
-        var subdomainName = domainInfo.Subdomain;
-        var rootDomain = FindOrCreateRootDomain(rootDomainName);
-        var subdomain = FindOrCreateSubdomain(subdomainName, rootDomain);
-
-        var newPages = urls
-            .Where(url => !_context.Pages.Any(p => p.Url == url)) 
-            .Select(url => new Page
-            {
-                Url = url,
-                HasBeenCrawled = false,
-                Content = string.Empty,
-                RootDomainId = rootDomain.Id,
-                SubdomainId = subdomain?.Id
-            })
-            .ToList();
-
-        _context.Pages.AddRange(newPages);
-        _context.SaveChanges(); 
-    }
 }

@@ -1,31 +1,29 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace cSharpScraper.Reconnaisance.SiteArchive;
+namespace cSharpScraper.Reconnaissance.ArchivedUrlDiscovery;
 
-public class ArchivedUrlCollector
+public class WayBackUrlCollector : IArchivedUrlCollector
 {
     public List<string> GetArchivedUrlsForDomain(string domain)
     {
 
-        var list = new List<string>();
+        var command = $"-c \"waybackurls {domain} --no-subs > /Users/mhellestveit/text.txt\"";
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = "/bin/bash", // Use `cmd.exe` on Windows
-                Arguments = $"-c \"waybackurls {domain} --no-subs > /Users/mhellestveit/text.txt\"",
+                FileName = "/bin/bash", 
+                Arguments = command,
                 UseShellExecute = false,
             }
         };
         
-        
         process.Start();
         process.WaitForExit();
         
-        list = File.ReadAllLines("/Users/mhellestveit/text.txt").ToList();
-
-        return list;
+        return File.ReadAllLines("/Users/mhellestveit/text.txt").Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
     }
 
     public List<string> FilterOutDeadUrls(IEnumerable<string> list, DomainInfo domain)

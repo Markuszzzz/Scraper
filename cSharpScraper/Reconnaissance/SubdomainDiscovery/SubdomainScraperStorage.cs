@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace cSharpScraper.Reconnaisance.SubdomainDiscovery;
+namespace cSharpScraper.Reconnaissance.SubdomainDiscovery;
 
 public class SubdomainScraperStorage
 {

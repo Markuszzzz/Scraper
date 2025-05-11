@@ -1,41 +1,50 @@
-using cSharpScraper.Reconnaisance.GoogleDorking;
-using cSharpScraper.Reconnaisance.SiteArchive;
+using cSharpScraper.Reconnaissance.ArchivedUrlDiscovery;
+using cSharpScraper.Reconnaissance.GoogleDorking;
+using cSharpScraper.Reconnaissance.Httpx;
+using cSharpScraper.Reconnaissance.SubdomainDiscovery;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
-using Nager.PublicSuffix.RuleProviders;
+using Microsoft.Extensions.Logging.Console;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+
 
 namespace cSharpScraper.Infrastructure;
 
 public static class DependencyInjectionBuilder
 {
-    //todo se om jeg trenger å legge til crawlerSettings
-    public static ServiceProvider SetupDependencyInjection(CrawlerSettings crawlerSettings)
+    public static async Task<ServiceProvider> BuildServiceProviderAsync(CrawlerSettings crawlerSettings)
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "Data", "public_suffix_list.dat");
-        var ruleProvider = new LocalFileRuleProvider(path);
-        _ = ruleProvider.BuildAsync().Result;
+        DomainParser domainParser = await DomainParserProvider.GetAsync();
 
         var serviceCollection = new ServiceCollection()
             .Configure<CrawlerSettings>(options =>
             {
-                options.Url = crawlerSettings.Url;
-                options.Scope = crawlerSettings.Scope;
+                options.Target = crawlerSettings.Target;
                 options.Eager = crawlerSettings.Eager;
+                options.CrawlSubdomains = crawlerSettings.CrawlSubdomains;
                 options.Headless = crawlerSettings.Headless;
                 options.RequestDelay = crawlerSettings.RequestDelay;
                 options.Headers = crawlerSettings.Headers;
                 options.ProxyAddress = crawlerSettings.ProxyAddress;
             })
+            .AddLogging(config =>
+            {
+                config.AddConsole(options => { options.FormatterName = nameof(CustomConsoleFormatter); });
+                config.SetMinimumLevel(LogLevel.Debug);
+                config.AddConsoleFormatter<CustomConsoleFormatter, ConsoleFormatterOptions>();
+                config.AddFilter("Microsoft.EntityFrameworkCore.Database.Command",
+                    LogLevel.Warning);
+            })
             .AddTransient<DomainDbContextFactory>()
             .AddTransient<HtmlDocument>()
             .AddTransient<DocParser>()
-            .AddTransient<DomainParser>(_ => new DomainParser(ruleProvider))
+            .AddSingleton<DomainParser>(_ => domainParser)
             .AddGoogleDorker()
+            .AddHttpx()
             .AddArchivedUrlCollector()
-            .AddWebCrawler()
             .AddSubdomainDiscovery()
-            .BuildServiceProvider();
+            .AddWebCrawler();
 
-        return serviceCollection;
+        return serviceCollection.BuildServiceProvider();
     }   
 }

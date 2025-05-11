@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using cSharpScraper.Reconnaisance.GoogleDorking;
-using cSharpScraper.Reconnaisance.SiteArchive;
+using cSharpScraper.Reconnaissance.ArchivedUrlDiscovery;
+using Microsoft.Extensions.Options;
 
 namespace cSharpScraper.Crawler.WebCrawler;
 
@@ -11,63 +12,60 @@ public class WebsiteCrawler(
     HttpClient httpClient,
     IOptions<CrawlerSettings> crawlerSettings,
     GoogleDorker googleDorker,
-    ArchivedUrlCollector archivedUrlCollector,
+    IArchivedUrlDiscoveryService archivedUrlDiscoveryService,
     PageStorageFactory pageStorageFactory,
     WebDriverFactory webDriverFactory,
     PageDownloader pageDownloader,
     DomainService domainService,
     DocParser docParser,
-    PageBatcher pageBatcher)
+    PageBatcher pageBatcher,
+    IRedirectResolver redirectResolver) : ICrawler
 {
     private readonly PageStorage _pageStorage = pageStorage;
     private readonly DomainParser _domainParser = domainParser;
-    private readonly ILogger<WebsiteCrawler> _logger = logger;
     private readonly HttpClient _httpClient = httpClient;
-    private readonly CrawlerSettings _crawlerSettings = crawlerSettings;
+    private readonly IOptions<CrawlerSettings> _crawlerSettings = crawlerSettings;
     private readonly GoogleDorker _googleDorker = googleDorker;
-    private readonly ArchivedUrlCollector _archivedUrlCollector = archivedUrlCollector;
+    private readonly IArchivedUrlDiscoveryService _archivedUrlDiscoveryService = archivedUrlDiscoveryService;
     private readonly PageStorageFactory _pageStorageFactory = pageStorageFactory;
     private readonly WebDriverFactory _webDriverFactory = webDriverFactory;
     private readonly PageDownloader _pageDownloader = pageDownloader;
     private readonly DomainService _domainService = domainService;
     private readonly DocParser _docParser = docParser;
     private readonly PageBatcher _pageBatcher = pageBatcher;
-    private DomainInfo? DomainInfo { get; set; }
-
+    private readonly IRedirectResolver _redirectResolver = redirectResolver;
+    private readonly ILogger<WebsiteCrawler> _logger = logger;
     private Stopwatch ConcurrencyStopwatch { get; } = new();
     private Stopwatch DownloadPageStopwatch { get; } = new();
-
-
-    public void InitializeCrawler(string url)
-    {
-        url = url.StartsWith("*") ? UrlUtility.GetSecondLevelDomainFromWildcardUrl(url) : url;
-        DomainInfo = _domainParser.Parse(url);
-        _pageStorage.PersistDomain(DomainInfo);
-    }
     
-    public async Task CrawlAsync(string pageToCrawl)
+    
+    public async Task CrawlAsync(CrawlTarget crawlTarget)
     {
-        if (!_pageStorage.HasMoreUrlsToScrape(DomainInfo))
+        var targetUrl = crawlTarget.Url!;
+        
+        _pageStorage.PersistDomain(crawlTarget.DomainInfo);
+        
+        if (!await CanBeCrawledAsync(targetUrl, crawlTarget.DomainInfo))
+            return;
+        
+        if (IsFirstCrawl(crawlTarget))
         {
-            _pageStorage.SavePageToBeCrawled("https://" + DomainInfo.FullyQualifiedDomainName + "/", DomainInfo);
+            _pageStorage.SavePageToBeCrawled(crawlTarget);
 
-            var dorkedUrls = _googleDorker.DorkUrls(DomainInfo);
-            _pageStorage.SaveUrlsToBeScraped(dorkedUrls, DomainInfo);
+            // var dorkedUrls = _googleDorker.DorkUrls(crawlTarget.DomainInfo);
+            // _pageStorage.SaveUrlsToBeScraped(dorkedUrls, crawlTarget.DomainInfo);
 
-            var archivedUrls = _archivedUrlCollector.GetArchivedUrlsForDomain(pageToCrawl)
-                .Where(x => !string.IsNullOrWhiteSpace(x));
-            archivedUrls = FilterUrlsOnPage(archivedUrls, pageToCrawl).Where(x => _domainService.IsInScope(x, DomainInfo));
-
-            archivedUrls = _archivedUrlCollector.FilterOutDeadUrls(archivedUrls, DomainInfo);
-            _pageStorage.SaveUrlsToBeScraped(archivedUrls, DomainInfo);
+            var archivedUrls = await _archivedUrlDiscoveryService.DiscoverArchivedUrls(crawlTarget);
+            _pageStorage.SaveUrlsToBeScraped(archivedUrls, crawlTarget.DomainInfo);
         }
 
-        await CrawlConcurrentlyAsync();
+        await CrawlConcurrentlyAsync(crawlTarget);
 
-        _logger.LogInformation("Completed crawling " + DomainInfo.FullyQualifiedDomainName + "\n");
     }
 
-    private async Task CrawlConcurrentlyAsync()
+
+
+    private async Task CrawlConcurrentlyAsync(CrawlTarget crawlTarget)
     {
         try
         {
@@ -82,11 +80,11 @@ public class WebsiteCrawler(
 
             var databaseTask = Task.Run(() =>
             {
-                _pageBatcher.PersistData(temporaryPages);
+                _pageBatcher.PersistData(temporaryPages, crawlTarget.DomainInfo);
             });
             
             PageStorage pageStorage = _pageStorageFactory.CreatePageStorage();
-            IEnumerable<Page> pages = pageStorage.GetNextPagesToScrape(DomainInfo);
+            IEnumerable<Page> pages = pageStorage.GetNextPagesToScrape(crawlTarget.DomainInfo);
 
             while (pages.Any())
             {
@@ -110,7 +108,7 @@ public class WebsiteCrawler(
                             
                             page.Content = pageContent;
 
-                            page.UrlsOnPage = GetUrlsOnPage(page.Url, page.Content).ToList();
+                            page.UrlsOnPage = GetUrlsOnPage(page.Url, page.Content, crawlTarget.DomainInfo).ToList();
                             temporaryPages.Add(page);
                             
                             _logger.LogInformation("temporary pages count" + temporaryPages.Count);
@@ -142,7 +140,7 @@ public class WebsiteCrawler(
                 
                 _logger.LogDebug("Downloaded " + temporaryPages.Count + " in " + ConcurrencyStopwatch.Elapsed.Seconds + " seconds");
 
-                pages = pageStorage.GetNextPagesToScrape(DomainInfo);
+                pages = pageStorage.GetNextPagesToScrape(crawlTarget.DomainInfo);
             }
             
             temporaryPages.CompleteAdding();
@@ -152,13 +150,16 @@ public class WebsiteCrawler(
         {
             _logger.LogError($"Error during crawling: {ex.Message}");
         }
+        
+        _logger.LogInformation("Completed crawling " +  "\n");
+
     }
 
-    private IEnumerable<string> GetUrlsOnPage(string url, string pageContent)
+    private IEnumerable<string> GetUrlsOnPage(string url, string pageContent, DomainInfo domainInfo)
     {
         var allLinksOnPage =  _docParser.GetLinksFromPageSource(pageContent);
-        var linksToCrawl = FilterUrlsOnPage(allLinksOnPage, url).ToList();
-        linksToCrawl = linksToCrawl.Where(x => _domainService.IsInScope(x, DomainInfo)).ToList();
+        var linksToCrawl = UrlUtility.FilterUrlsOnPage(allLinksOnPage, url).ToList();
+        linksToCrawl = linksToCrawl.Where(x => _domainService.IsInScope(x, domainInfo)).ToList();
 
         _logger.LogDebug($"Currently on page {url}\n");
 
@@ -166,22 +167,10 @@ public class WebsiteCrawler(
     }
 
 
-    private static IEnumerable<string> FilterUrlsOnPage(IEnumerable<string> urlsOnPage, string url)
+   
+
+    private async Task<bool> CanBeCrawledAsync(string url, DomainInfo domainInfo)
     {
-        urlsOnPage = urlsOnPage.Where(UrlUtility.IsHttpUrl);
-        urlsOnPage = urlsOnPage.Select(x => UrlUtility.ConvertToAbsoluteUrl(x, url));
-        urlsOnPage = urlsOnPage.Where(x => Uri.IsWellFormedUriString(x, UriKind.Absolute));
-        urlsOnPage = urlsOnPage.Select(UrlUtility.RemoveAnchorTagFromUrl).Distinct();
-        urlsOnPage = urlsOnPage.Where(UrlUtility.IsWantedFileType).AsEnumerable().ToList();
-        return urlsOnPage.AsEnumerable();
-    }
-
-    public async Task<bool> CanBeCrawledAsync(string url)
-    {
-        url = url.StartsWith("*") ? UrlUtility.GetSecondLevelDomainFromWildcardUrl(url) : url;
-
-        url = "https://" + url;
-
         HttpResponseMessage res;
         try
         {
@@ -199,49 +188,52 @@ public class WebsiteCrawler(
             return true;
         }
 
-        if ((int)res.StatusCode is < 300 or > 400)
+        if (!res.StatusCode.IsRedirect())
         {
-            _logger.LogInformation($"Status code: {(int)res.StatusCode} {res.StatusCode}.");
-            _logger.LogInformation("Can not be crawled");
+            _logger.LogInformation($"Status code: {(int)res.StatusCode} {res.StatusCode}. Can not crawl.");
             return false;
         }
 
-        var newUrl = FollowRedirects(url, res);
-
-        if (_domainService.ShouldHaveWwwSubdomain(newUrl, DomainInfo))
+        var newUrl = await _redirectResolver.ResolveFinalUrlAsync(url);
+        
+        if (string.IsNullOrEmpty(newUrl))
         {
-            DomainInfo = _domainParser.Parse(newUrl);
+            _logger.LogWarning("Unable to resolve final URL from {OriginalUrl}. Crawling aborted.", url);
+            return false;
         }
 
-        return _domainService.IsInScope(url, DomainInfo) && _pageStorage.UrlHasBeenCrawled(url);
+        if (_domainService.ShouldHaveWwwSubdomain(newUrl, domainInfo))
+        {
+            DomainInfo? newParsedDomain = TryParseDomain(newUrl);
+            if (newParsedDomain == null)
+                return false;
+            
+            domainInfo = newParsedDomain;
+        }
+
+        return _domainService.IsInScope(url, domainInfo) && _pageStorage.UrlHasBeenCrawled(url);
     }
-
-
-    private string FollowRedirects(string newUrl, HttpResponseMessage res)
+    
+    private DomainInfo? TryParseDomain(string url)
     {
-        var maxRedirect = 0;
-        while ((int)res.StatusCode is >= 300 and < 400)
+        try
         {
-            if (maxRedirect > 10)
-                return newUrl;
-
-            var location = res.Headers.Location.ToString();
-            newUrl = UrlUtility.ConvertToAbsoluteUrl(location, UrlUtility.GetDomainWithSubdomains(newUrl));
-            _logger.LogInformation("The location of the resource has been moved, it is now at: " + location);
-
-            try
+            var info = _domainParser.Parse(url);
+            if (info == null)
             {
-                res = _httpClient.GetAsync(newUrl).Result;
+                _logger.LogWarning("Domain parsing returned null for: {Domain}", url);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to check if site can be crawled: {ex.Message}");
-                return newUrl;
-            }
-
-            maxRedirect++;
+            return info;
         }
-
-        return newUrl;
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Domain parsing threw exception for: {Domain}", url);
+            return null;
+        }
+    }
+    
+    private bool IsFirstCrawl(CrawlTarget crawlTarget)
+    {
+        return !_pageStorage.HasMoreUrlsToScrape(crawlTarget.DomainInfo);
     }
 }

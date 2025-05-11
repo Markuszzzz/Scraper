@@ -1,28 +1,14 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using cSharpScraper.Crawler.WebCrawler.Models;
-using Microsoft.Extensions.Logging;
-using Nager.PublicSuffix;
 
 namespace cSharpScraper.Crawler.WebCrawler.Services;
 
-public class PageBatcher
+public class PageBatcher(PageStorageFactory pageStorageFactory, ILogger<PageBatcher> logger)
 {
-    private readonly PageStorageFactory _pageStorageFactory;
-    private readonly ILogger<PageBatcher> _logger;
-    private readonly DomainInfo _domainInfo;
-    private readonly Stopwatch _databaseStopwatch;
+    private readonly Stopwatch _databaseStopwatch = new();
+    private readonly PageStorageFactory _pageStorageFactory = pageStorageFactory;
+    private readonly ILogger<PageBatcher> _logger = logger;
 
-
-    public PageBatcher(PageStorageFactory pageStorageFactory, ILogger<PageBatcher> logger, DomainInfo domainInfo)
-    {
-        _pageStorageFactory = pageStorageFactory;
-        _logger = logger;
-        _domainInfo = domainInfo;
-        _databaseStopwatch = new Stopwatch();
-    }
-
-    public void PersistData(BlockingCollection<Page> temporaryPages)
+    public void PersistData(BlockingCollection<Page> temporaryPages, DomainInfo domainInfo)
     {
         var pageStorage = _pageStorageFactory.CreatePageStorage();
         var batchSize = 50;
@@ -38,7 +24,7 @@ public class PageBatcher
                 _databaseStopwatch.Stop();
                 _logger.LogInformation(
                     $"Crawled {batchSize} pages with average speed of {(double)_databaseStopwatch.ElapsedMilliseconds / batchSize} ms per page");
-                SaveBatch(batch, pageStorage);
+                SaveBatch(batch, pageStorage, domainInfo);
                 batch.Clear();
                 _databaseStopwatch.Restart();
             }
@@ -46,11 +32,11 @@ public class PageBatcher
 
         if (batch.Count > 0)
         {
-            SaveBatch(batch, pageStorage);
+            SaveBatch(batch, pageStorage, domainInfo);
         }
     }
     
-    private void SaveBatch(List<Page> batch, PageStorage pageStorage)
+    private void SaveBatch(List<Page> batch, PageStorage pageStorage, DomainInfo domainInfo)
     {
         try
         {
@@ -61,7 +47,7 @@ public class PageBatcher
                 .Distinct()
                 .ToList();
             
-            pageStorage.SavePagesToBeCrawled(allLinks, _domainInfo);
+            pageStorage.SavePagesToBeCrawled(allLinks, domainInfo);
         }
         catch (Exception ex)
         {

@@ -10,7 +10,5 @@ global using Microsoft.EntityFrameworkCore.Migrations;
 global using cSharpScraper.Crawler.WebCrawler;
 global using cSharpScraper.Crawler.WebCrawler.Models;
 global using cSharpScraper.Crawler.WebCrawler.Services;
-global using cSharpScraper.Reconnaisance.SubdomainDiscovery;
-
 global using Nager.PublicSuffix;
 global using OpenQA.Selenium;

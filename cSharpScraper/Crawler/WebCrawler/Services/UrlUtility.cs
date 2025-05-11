@@ -95,10 +95,20 @@ public static class UrlUtility
 /// </summary>
 /// <param name="url"></param>
 /// <returns></returns>
-    public static bool IsHttpUrl(string url)
+    public static bool IsHttpxUrl(string url)
     {
         return !url.StartsWith("tel:", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)
             && !url.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static IEnumerable<string> FilterUrlsOnPage(IEnumerable<string> urlsOnPage, string url)
+    {
+        urlsOnPage = urlsOnPage.Where(IsHttpxUrl);
+        urlsOnPage = urlsOnPage.Select(x => ConvertToAbsoluteUrl(x, url));
+        urlsOnPage = urlsOnPage.Where(x => Uri.IsWellFormedUriString(x, UriKind.Absolute));
+        urlsOnPage = urlsOnPage.Select(RemoveAnchorTagFromUrl).Distinct();
+        urlsOnPage = urlsOnPage.Where(IsWantedFileType).AsEnumerable().ToList();
+        return urlsOnPage.AsEnumerable();
     }
 
 public static string GetSecondLevelDomainFromWildcardUrl(string wildcardUrl)
@@ -108,6 +118,22 @@ public static string GetSecondLevelDomainFromWildcardUrl(string wildcardUrl)
             i++;
 
         return wildcardUrl[i..];
+    }
+
+    public static string NormalizeDomain(string url)
+    {
+        if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+            url = "https://" + url;
+
+        try
+        {
+            var uri = new Uri(url);
+            return uri.Host; // returnerer "example.com" eller "sub.example.com"
+        }
+        catch
+        {
+            return url.Trim().TrimEnd('/'); // fallback
+        }
     }
     
     

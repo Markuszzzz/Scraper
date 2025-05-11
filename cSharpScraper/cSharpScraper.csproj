@@ -38,4 +38,10 @@
     <None Remove="Exemptions\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="public_suffix_list.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
 </Project>

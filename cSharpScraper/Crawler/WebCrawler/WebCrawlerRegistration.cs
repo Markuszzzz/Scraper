@@ -1,5 +1,6 @@
+using cSharpScraper.Crawler.SubDomainCrawler;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace cSharpScraper.Crawler.WebCrawler;
@@ -10,25 +11,28 @@ public static class WebCrawlerRegistration
     {
         //todo: Use AZ key vault to store credentials
         services.AddDbContext<DomainDbContext>(options =>
-                options.UseMySql("server=localhost;port=3307;database=scraper;user=root;password=xxxx",
+                options.UseMySql("server=localhost;port=3307;database=scraper;user=root;password=SecurePassword",
                         new MySqlServerVersion(new Version(9, 1, 0)))
                     .LogTo(Console.WriteLine, LogLevel.Critical))
-            .AddLogging(config =>
-            {
-                config.AddConsole(options => { options.FormatterName = nameof(CustomConsoleFormatter); });
-                config.SetMinimumLevel(LogLevel.Critical);
-                config.AddConsoleFormatter<CustomConsoleFormatter, ConsoleFormatterOptions>();
-                config.AddFilter("Microsoft.EntityFrameworkCore.Database.Command",
-                    LogLevel.Warning); // Suppress SQL logs
-            })
-            
             .AddTransient<PageStorage>()
             .AddTransient<PageStorageFactory>()
+            .AddTransient<IRedirectResolver, RedirectResolver>()
             .AddTransient<WebsiteCrawler>()
             .AddSingleton<CrawlerSettings>()
             .AddTransient<DomainService>()
             .AddSingleton<PageDownloader>()
             .AddTransient<WebDriverFactory>()
+            .AddTransient<PageBatcher>()
+            .AddTransient<ICrawler>(provider =>
+            {
+                var settings = provider.GetRequiredService<IOptions<CrawlerSettings>>().Value;
+
+                if (settings.CrawlSubdomains)
+                    return ActivatorUtilities.CreateInstance<SubdomainCrawlerDecorator>(provider);
+
+                return ActivatorUtilities.CreateInstance<WebsiteCrawler>(provider);
+
+            })
             .AddHttpClient<WebsiteCrawler, WebsiteCrawler>(client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(10);
@@ -44,6 +48,7 @@ public static class WebCrawlerRegistration
                 UseProxy = true,
                 AllowAutoRedirect = false
             });
+            
         return services;
     }
 }

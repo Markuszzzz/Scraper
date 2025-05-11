@@ -1,4 +1,3 @@
-using cSharpScraper.Crawler.HackerOneCrawling;
 using cSharpScraper.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,31 +7,22 @@ public static class CrawlCoordinator
 {
     public static async Task StartAsync(CrawlerSettings crawlerSettings)
     {
-        var serviceProvider = DepedencyInjectionBuilder.SetupDependencyInjection(crawlerSettings);
-        var url = crawlerSettings.Url;
-
-        if (crawlerSettings.Scope)
+        var serviceProvider = await DependencyInjectionBuilder.BuildServiceProviderAsync(crawlerSettings);
+        
+        var crawler = serviceProvider.GetRequiredService<ICrawler>();
+        var crawlTargetLogger = serviceProvider.GetRequiredService<ILogger<CrawlTarget>>();
+        
+        var crawlTarget = crawlerSettings.CrawlSubdomains 
+            ? await CrawlTargetFactory.FromRegistrableDomainAsync(crawlerSettings.Target, crawlTargetLogger) 
+            :  await CrawlTargetFactory.FromFullUrlAsync(crawlerSettings.Target, crawlTargetLogger);
+        
+        if(crawlTarget is null)
         {
-            var scopeCrawler = serviceProvider.GetService<HackerOneCrawler>();
-            await scopeCrawler.CrawlHackerOneCsvScopeAsync(crawlerSettings.Url);
+            Console.WriteLine("Failed to create crawl target from URL.");
+            return;
         }
-        else
-        {
-            var webCrawler = serviceProvider.GetService<WebsiteCrawler>();
-
-            if (url.StartsWith("*"))
-            {
-                Console.WriteLine(
-                    $"{url} allows for crawling subdomains. Enumerating and crawling its subdomains now");
-                var subdomainEnumerator = serviceProvider.GetService<SublisterSubdomainEnumerator>();
-                var subdomains = await subdomainEnumerator?.FindSubdomainsAsync(url);
-
-                foreach (var subdomain in subdomains)
-                {
-                    webCrawler?.InitializeCrawler(subdomain);
-                    webCrawler?.CrawlAsync(subdomain);
-                }
-            }
-        }
+        
+        await crawler.CrawlAsync(crawlTarget);
     }
 }
+
