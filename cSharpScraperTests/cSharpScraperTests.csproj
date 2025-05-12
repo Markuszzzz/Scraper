@@ -27,8 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ReconnaissanceTests\" />
-      <Folder Include="SubdomainCrawlerTests\" />
+      <Folder Include="Features\" />
     </ItemGroup>
 
 </Project>

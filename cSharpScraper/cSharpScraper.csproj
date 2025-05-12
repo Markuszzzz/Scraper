@@ -36,9 +36,6 @@
 
   <ItemGroup>
     <None Remove="Exemptions\**" />
-    <None Update="Resources\public_suffix_list.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   
 </Project>
