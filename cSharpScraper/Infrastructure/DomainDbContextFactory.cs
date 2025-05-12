@@ -1,3 +1,4 @@
+using cSharpScraper.WebCrawler.Persistence;
 using Microsoft.EntityFrameworkCore.Design;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 

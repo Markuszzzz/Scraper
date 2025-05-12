@@ -1,4 +1,4 @@
 ﻿using System.CommandLine;
-using cSharpScraper.CommandLineParsing;
+using cSharpScraper;
 
 await CommandLineParser.SetupCommandLineParser().InvokeAsync(args);

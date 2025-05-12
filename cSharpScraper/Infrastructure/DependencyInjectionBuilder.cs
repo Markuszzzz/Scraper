@@ -1,7 +1,10 @@
 using cSharpScraper.Reconnaissance.ArchivedUrlDiscovery;
 using cSharpScraper.Reconnaissance.GoogleDorking;
 using cSharpScraper.Reconnaissance.Httpx;
-using cSharpScraper.Reconnaissance.SubdomainDiscovery;
+using cSharpScraper.SubDomainCrawler;
+using cSharpScraper.WebCrawler;
+using cSharpScraper.WebCrawler.CrawlTargeting;
+using cSharpScraper.WebCrawler.Models;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Console;

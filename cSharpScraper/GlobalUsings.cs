@@ -8,7 +8,6 @@ global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using Microsoft.EntityFrameworkCore.Metadata;
 global using Microsoft.EntityFrameworkCore.Migrations;
 global using cSharpScraper.Crawler.WebCrawler;
-global using cSharpScraper.Crawler.WebCrawler.Models;
 global using cSharpScraper.Crawler.WebCrawler.Services;
 global using Nager.PublicSuffix;
 global using OpenQA.Selenium;

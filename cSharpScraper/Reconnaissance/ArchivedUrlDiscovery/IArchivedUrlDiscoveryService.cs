@@ -1,4 +1,5 @@
 using cSharpScraper.Reconnaissance.Httpx;
+using cSharpScraper.WebCrawler.CrawlTargeting;
 
 namespace cSharpScraper.Reconnaissance.ArchivedUrlDiscovery;
 

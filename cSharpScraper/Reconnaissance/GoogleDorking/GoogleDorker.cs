@@ -1,7 +1,7 @@
 using HtmlAgilityPack;
 using OpenQA.Selenium.Support.UI;
 
-namespace cSharpScraper.Reconnaisance.GoogleDorking;
+namespace cSharpScraper.Reconnaissance.GoogleDorking;
 
 public class GoogleDorker(IWebDriver webDriver)
 {
